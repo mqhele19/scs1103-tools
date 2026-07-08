@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How Your Mouse Moves - Interactive Teaching Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background: #1e293b;
+            border-radius: 32px;
+            padding: 30px 35px 40px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .screen-indicator {
+            background: #334155;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #94a3b8;
+        }
+        .screen-indicator span {
+            color: #f1f5f9;
+        }
+        .header-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .class-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 8px 18px;
+            border-radius: 40px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #94a3b8;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .class-bar .course {
+            font-weight: 600;
+            color: #60a5fa;
+        }
+        .class-bar .designer {
+            color: #a78bfa;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .dots {
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #334155;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .dot.active {
+            background: #60a5fa;
+            width: 28px;
+            border-radius: 20px;
+        }
+        .btn {
+            background: #3b82f6;
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 10px 28px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            background: #2563eb;
+            transform: scale(1.02);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #475569;
+            color: #cbd5e1;
+        }
+        .btn-outline:hover {
+            background: #334155;
+            border-color: #64748b;
+        }
+        .btn-success {
+            background: #22c55e;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        .btn-danger {
+            background: #ef4444;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .btn-warning {
+            background: #eab308;
+            color: #0f172a;
+        }
+        .btn-warning:hover {
+            background: #ca8a04;
+        }
+        .btn-purple {
+            background: #8b5cf6;
+        }
+        .btn-purple:hover {
+            background: #7c3aed;
+        }
+
+        .hook-box {
+            text-align: center;
+            padding: 40px 20px 30px;
+        }
+        .hook-box h2 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .hook-box p {
+            font-size: 20px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        .hook-number {
+            font-size: 80px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+        }
+        .hook-reveal {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 24px 30px;
+            margin: 20px auto 10px;
+            max-width: 700px;
+            text-align: left;
+            border-left: 5px solid #3b82f6;
+            display: none;
+        }
+        .hook-reveal.visible {
+            display: block;
+        }
+        .hook-reveal h4 {
+            color: #60a5fa;
+            margin-bottom: 8px;
+        }
+        .hook-reveal ul {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 20px;
+        }
+        .hook-reveal ul li::before {
+            content: "▸ ";
+            color: #a78bfa;
+        }
+        .hook-reveal ul li {
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+
+        .diagram-wrap {
+            background: #0f172a;
+            border-radius: 24px;
+            padding: 30px 20px 20px;
+            margin: 8px 0 10px;
+            overflow-x: auto;
+        }
+        .diagram {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 6px 4px;
+            min-width: 700px;
+        }
+        .step-box {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 16px;
+            padding: 14px 12px;
+            min-width: 80px;
+            text-align: center;
+            transition: all 0.4s ease;
+            flex: 1 0 auto;
+            max-width: 130px;
+        }
+        .step-box .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .step-box .name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+        .step-box .tech {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .step-box.active {
+            border-color: #60a5fa;
+            background: #1e3a5f;
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.25);
+            transform: scale(1.04);
+        }
+        .step-box.done {
+            border-color: #22c55e;
+            background: #14532d;
+        }
+        .arrow {
+            font-size: 26px;
+            color: #475569;
+            flex-shrink: 0;
+            font-weight: 300;
+        }
+        .ctrl-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 10px 0 20px;
+            flex-wrap: wrap;
+        }
+        .toggle-btn {
+            background: #334155;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 15px;
+        }
+        .toggle-btn.active {
+            background: #3b82f6;
+            color: #fff;
+        }
+        .toggle-btn:hover {
+            background: #475569;
+            color: #f1f5f9;
+        }
+        .toggle-btn.active:hover {
+            background: #2563eb;
+        }
+        .analogy-label {
+            display: none;
+            font-size: 13px;
+            color: #a78bfa;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        .show-analogy .analogy-label {
+            display: block;
+        }
+        .show-analogy .tech-label {
+            display: none;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0 8px;
+        }
+        .concept-card {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 18px 16px;
+            text-align: center;
+            border: 2px solid #334155;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .concept-card:hover {
+            border-color: #64748b;
+            transform: translateY(-3px);
+        }
+        .concept-card .concept-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #e2e8f0;
+        }
+        .concept-card .concept-desc {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 6px;
+            display: none;
+        }
+        .concept-card.expanded .concept-desc {
+            display: block;
+        }
+        .concept-card.highlight {
+            border-color: #a78bfa;
+            background: #1e1b4b;
+        }
+
+        .compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 16px 0 8px;
+        }
+        .compare-col {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 20px 18px;
+            border: 2px solid #334155;
+            text-align: center;
+        }
+        .compare-col h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        .compare-col .badge {
+            display: inline-block;
+            background: #3b82f6;
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+        .compare-col ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        .compare-col ul li {
+            padding: 6px 0;
+            border-bottom: 1px solid #1e293b;
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+        .compare-col ul li::before {
+            content: "▸ ";
+            color: #60a5fa;
+        }
+        .converge {
+            text-align: center;
+            margin: 14px 0 4px;
+            font-weight: 700;
+            color: #a78bfa;
+            font-size: 18px;
+        }
+
+        .group-selector {
+            text-align: center;
+            padding: 10px 0 16px;
+        }
+        .group-selector .group-display {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px 0;
+        }
+        .group-selector .group-label {
+            font-size: 18px;
+            color: #94a3b8;
+        }
+        .group-selector .group-topic {
+            font-size: 14px;
+            color: #a78bfa;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .group-selector .status-box {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 16px 24px;
+            margin: 12px auto;
+            max-width: 500px;
+            border: 2px solid #334155;
+        }
+        .group-selector .status-box .score {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .group-selector .status-box .score span {
+            color: #60a5fa;
+        }
+        .group-selector .status-box .attempts {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        .group-btn-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .quiz-item {
+            background: #0f172a;
+            border-radius: 18px;
+            padding: 20px 24px;
+            margin-bottom: 18px;
+            border: 2px solid #334155;
+        }
+        .quiz-item .q {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .quiz-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .quiz-options button {
+            background: #1e293b;
+            border: 2px solid #334155;
+            color: #e2e8f0;
+            padding: 8px 22px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+            font-size: 15px;
+        }
+        .quiz-options button:hover {
+            background: #334155;
+        }
+        .quiz-options button.correct {
+            border-color: #22c55e;
+            background: #14532d;
+        }
+        .quiz-options button.wrong {
+            border-color: #ef4444;
+            background: #7f1d1d;
+        }
+        .quiz-options button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .quiz-feedback {
+            margin-top: 10px;
+            font-size: 15px;
+            color: #94a3b8;
+            display: none;
+        }
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .group-history {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .group-history .badge {
+            background: #1e293b;
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+        .group-history .badge.passed {
+            border-color: #22c55e;
+            color: #22c55e;
+            background: #14532d;
+        }
+        .group-history .badge.failed {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: #7f1d1d;
+        }
+        .group-history .badge.current {
+            border-color: #60a5fa;
+            color: #60a5fa;
+            background: #1e3a5f;
+        }
+
+        .stack-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 4px auto;
+            max-width: 540px;
+        }
+        .stack-layer {
+            width: 100%;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 16px;
+            padding: 14px 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+        .stack-layer.active {
+            border-color: #60a5fa;
+            background: #1e3a5f;
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.25);
+            transform: scale(1.02);
+        }
+        .stack-layer.done {
+            border-color: #22c55e;
+            background: #14532d;
+        }
+        .stack-layer.swap-layer {
+            border-style: dashed;
+            border-color: #a78bfa;
+        }
+        .stack-layer.swap-layer.active {
+            border-style: solid;
+            border-color: #60a5fa;
+        }
+        .stack-layer .layer-tag {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .stack-layer .layer-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #e2e8f0;
+        }
+        .stack-layer .layer-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .stack-down-arrow {
+            font-size: 20px;
+            color: #475569;
+            line-height: 1.4;
+        }
+        .stack-outcome {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 18px 24px;
+            margin: 14px auto 0;
+            max-width: 540px;
+            text-align: center;
+            border-left: 5px solid #a78bfa;
+            display: none;
+        }
+        .stack-outcome.visible {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        .stack-outcome .outcome-icon {
+            font-size: 40px;
+        }
+        .stack-punchline {
+            text-align: center;
+            margin-top: 16px;
+            font-weight: 700;
+            color: #a78bfa;
+            font-size: 16px;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 18px 14px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .diagram {
+                min-width: 500px;
+            }
+            .step-box {
+                padding: 10px 8px;
+                min-width: 60px;
+            }
+            .step-box .name {
+                font-size: 11px;
+            }
+            .compare {
+                grid-template-columns: 1fr;
+            }
+            .hook-box h2 {
+                font-size: 24px;
+            }
+            .hook-number {
+                font-size: 56px;
+            }
+            .hook-reveal ul {
+                grid-template-columns: 1fr;
+            }
+            .concept-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .group-selector .group-display {
+                font-size: 32px;
+            }
+        }
+        @media (max-width: 450px) {
+            .nav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .dots {
+                justify-content: center;
+            }
+            .btn {
+                justify-content: center;
+            }
+            .class-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+
+        <div class="class-bar">
+            <span>📚 <span class="course">SCS1103</span> — Operating Systems Concepts | NUST</span>
+            <span>🖱️ <span class="designer">Designed by Mr M. Mguni</span></span>
+        </div>
+
+        <div class="header">
+            <div>
+                <h1>💻 Topic 2: I/O Management</h1>
+                <div class="header-subtitle" id="screenSubtitle">🖱️ Hook: How Your Mouse Moves</div>
+            </div>
+            <div class="screen-indicator">Screen <span id="screenNum">1</span> / 7</div>
+        </div>
+
+        <!-- SCREEN 1: HOOK -->
+        <div class="screen active" data-screen="1">
+            <div class="hook-box">
+                <h2>🤔 How many things were involved?</h2>
+                <p>Your wireless mouse just moved the cursor.<br />How many distinct steps do you think happened?</p>
+                <span class="hook-number">?</span>
+                <br /><br />
+                <button class="btn" id="revealHook">Reveal the answer</button>
+                <div class="hook-reveal" id="hookReveal">
+                    <h4>✅ 7 distinct steps!</h4>
+                    <ul>
+                        <li>Mouse hardware (sensor)</li>
+                        <li>Radio signal (Bluetooth / 2.4GHz)</li>
+                        <li>Bluetooth chip (hardware)</li>
+                        <li>Interrupt (CPU stops)</li>
+                        <li>CPU processes data</li>
+                        <li>Bluetooth driver (translates)</li>
+                        <li>OS moves the cursor</li>
+                    </ul>
+                    <p style="margin-top:12px;color:#94a3b8;font-size:15px;">
+                        Each step involves hardware, firmware, drivers, the OS, interrupts, and abstraction.
+                        Let's see how it works.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: ANIMATION -->
+        <div class="screen" data-screen="2">
+            <h2 style="font-size:22px;margin-bottom:6px;">🔄 The Journey of One Mouse Movement</h2>
+            <p style="color:#94a3b8;font-size:15px;margin-bottom:12px;">Click <strong>Next Step</strong> to see the path light up.</p>
+            <div class="diagram-wrap">
+                <div class="diagram" id="diagram"></div>
+            </div>
+            <div class="ctrl-row">
+                <button class="btn btn-outline" id="resetAnim">⟲ Reset</button>
+                <button class="btn" id="nextAnim">Next Step →</button>
+                <button class="btn btn-outline" id="autoAnim">▶ Auto-play</button>
+            </div>
+            <p style="text-align:center;color:#64748b;font-size:13px;margin-top:10px;">
+                Step <span id="stepCounter">0</span> / <span id="totalSteps">8</span>
+            </p>
+        </div>
+
+        <!-- SCREEN 3: ANALOGY -->
+        <div class="screen" data-screen="3">
+            <h2 style="font-size:22px;margin-bottom:6px;">🏠 Analogy Mode</h2>
+            <p style="color:#94a3b8;font-size:15px;margin-bottom:12px;">
+                Flip between <strong>technical</strong> and <strong>house analogy</strong> labels.
+            </p>
+            <div class="toggle-wrap">
+                <button class="toggle-btn active" data-mode="tech">🔧 Technical</button>
+                <button class="toggle-btn" data-mode="analogy">🏠 House Analogy</button>
+            </div>
+            <div class="diagram-wrap" id="analogyDiagramWrap">
+                <div class="diagram" id="analogyDiagram"></div>
+            </div>
+            <p style="text-align:center;color:#64748b;font-size:14px;margin-top:12px;">
+                <span id="analogyHint">Click "House Analogy" to switch labels.</span>
+            </p>
+        </div>
+
+        <!-- SCREEN 4: CONCEPTS -->
+        <div class="screen" data-screen="4">
+            <h2 style="font-size:22px;margin-bottom:6px;">🧠 OS Concepts Map</h2>
+            <p style="color:#94a3b8;font-size:15px;margin-bottom:14px;">
+                Click each concept to see how it connects to the mouse story.
+            </p>
+            <div class="concept-grid" id="conceptGrid"></div>
+        </div>
+
+        <!-- SCREEN 5: COMPARE -->
+        <div class="screen" data-screen="5">
+            <h2 style="font-size:22px;margin-bottom:6px;">📡 USB Dongle vs Bluetooth</h2>
+            <p style="color:#94a3b8;font-size:15px;margin-bottom:12px;">
+                Two different paths to the same place — see where they diverge and converge.
+            </p>
+            <div class="compare">
+                <div class="compare-col">
+                    <h3>🔌 USB Dongle</h3>
+                    <span class="badge">2.4GHz Radio</span>
+                    <ul>
+                        <li>Mouse sends radio signal</li>
+                        <li>Dongle receives it</li>
+                        <li>USB port gets data</li>
+                        <li>USB driver reads it</li>
+                        <li>HID driver interprets</li>
+                        <li>OS moves cursor</li>
+                    </ul>
+                </div>
+                <div class="compare-col">
+                    <h3>📶 Bluetooth</h3>
+                    <span class="badge">Bluetooth Radio</span>
+                    <ul>
+                        <li>Mouse sends radio signal</li>
+                        <li>Bluetooth chip receives it</li>
+                        <li>Bluetooth stack processes</li>
+                        <li>Bluetooth driver reads it</li>
+                        <li>HID driver interprets</li>
+                        <li>OS moves cursor</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="converge">
+                ⬇️ Both converge at the <span style="color:#60a5fa;">HID driver</span> — that's abstraction!
+            </div>
+        </div>
+
+        <!-- SCREEN 6: VIRTUAL DEVICE ABSTRACTION -->
+        <div class="screen" data-screen="6">
+            <h2 style="font-size:22px;margin-bottom:6px;">🎭 Virtual Device Abstraction</h2>
+            <p style="color:#94a3b8;font-size:15px;margin-bottom:12px;">
+                Same top layers every time. Only the <strong>bottom</strong> layer swaps. Watch what changes — and what doesn't.
+            </p>
+
+            <div class="toggle-wrap" id="stackModeToggle">
+                <button class="toggle-btn active" data-stackmode="tech">🔧 Technical</button>
+                <button class="toggle-btn" data-stackmode="analogy">🏤 Post Office</button>
+            </div>
+
+            <div class="toggle-wrap" id="deviceToggle">
+                <button class="toggle-btn active" data-device="real">🖨️ Real Printer</button>
+                <button class="toggle-btn" data-device="virtual">📄 Virtual PDF Printer</button>
+            </div>
+
+            <div class="diagram-wrap">
+                <div class="stack-wrap" id="stackDiagram"></div>
+            </div>
+
+            <div class="stack-outcome" id="stackOutcome"></div>
+
+            <div class="ctrl-row">
+                <button class="btn btn-outline" id="resetStack">⟲ Reset</button>
+                <button class="btn" id="playStack">▶ Send Print Job</button>
+            </div>
+
+            <div class="stack-punchline" id="stackPunchline" style="display:none;">
+                🎭 The Application, OS, and Driver layers never changed. Only the bottom layer did — that's the power of abstraction.
+            </div>
+        </div>
+
+        <!-- SCREEN 7: EXIT TICKET — GROUP QUIZ -->
+        <div class="screen" data-screen="7">
+            <h2 style="font-size:22px;margin-bottom:6px;">🎲 Exit Ticket: Random Group Quiz</h2>
+            <p style="color:#94a3b8;font-size:15px;margin-bottom:8px;">
+                Each group gets <strong>3 unique questions</strong> on their topic. Must get <strong>2/3 correct</strong> to pass!
+            </p>
+
+            <div class="group-selector">
+                <div class="group-label">🎲 Current Group</div>
+                <div class="group-display" id="currentGroupDisplay">🔴 CPU</div>
+                <div class="group-topic" id="groupTopicDisplay">Topic: CPU & Processing</div>
+
+                <div class="status-box">
+                    <div class="score">Score: <span id="scoreDisplay">0</span> / 3</div>
+                    <div class="attempts">Attempts: <span id="attemptDisplay">0</span></div>
+                    <div id="passFailDisplay" style="font-weight:700;margin-top:6px;font-size:18px;"></div>
+                </div>
+
+                <div class="group-btn-row">
+                    <button class="btn btn-warning" id="pickGroupBtn">🎲 Pick Random Group</button>
+                    <button class="btn btn-purple" id="resetGroupQuizBtn">🔄 Reset Current Group</button>
+                    <button class="btn btn-danger" id="resetAllGroupsBtn">🔁 Reset All Groups</button>
+                </div>
+            </div>
+
+            <div id="quizContainer"></div>
+
+            <div class="group-history" id="groupHistory"></div>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="nav">
+            <div class="dots" id="dots">
+                <button class="dot active" data-index="0"></button>
+                <button class="dot" data-index="1"></button>
+                <button class="dot" data-index="2"></button>
+                <button class="dot" data-index="3"></button>
+                <button class="dot" data-index="4"></button>
+                <button class="dot" data-index="5"></button>
+                <button class="dot" data-index="6"></button>
+            </div>
+            <div>
+                <button class="btn btn-outline" id="prevScreen">← Prev</button>
+                <button class="btn" id="nextScreen">Next →</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // DATA
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const steps = [
+            { id: 'mouse', label: 'Mouse Sensor', tech: 'Hardware', analogy: 'Friend across the street' },
+            { id: 'signal', label: 'Radio Signal', tech: 'Bluetooth / 2.4GHz', analogy: 'Letter in the air' },
+            { id: 'chip', label: 'Bluetooth Chip', tech: 'Hardware (radio)', analogy: 'Mailbox' },
+            { id: 'interrupt', label: 'Interrupt', tech: 'CPU stops', analogy: 'Mail sorter rings bell' },
+            { id: 'cpu', label: 'CPU', tech: 'Processes data', analogy: 'Homeowner reads letter' },
+            { id: 'driver', label: 'Bluetooth Driver', tech: 'Translates', analogy: 'Mail sorter' },
+            { id: 'hid', label: 'HID Driver', tech: 'Abstraction layer', analogy: 'Post office sorting' },
+            { id: 'os', label: 'OS', tech: 'Moves cursor', analogy: 'Homeowner moves cursor' },
+        ];
+
+        const concepts = [
+            { name: 'Interrupt-Driven I/O', desc: 'The Bluetooth chip interrupts the CPU when data arrives — the CPU stops, handles the data, and resumes.' },
+            { name: 'Device Abstraction', desc: 'The HID driver hides the details of the mouse. The OS just sees "mouse data", not Bluetooth or USB specifics.' },
+            { name: 'Virtual Devices', desc: 'Bluetooth creates virtual COM ports. The OS thinks it\'s talking to a serial device, but it\'s actually radio signals.' },
+            { name: 'Drivers', desc: 'The Bluetooth driver translates radio signals into OS events. The OS doesn\'t talk to the mouse directly — the driver does.' },
+        ];
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SCREEN 7: VIRTUAL DEVICE ABSTRACTION STACK
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const stackLayers = [
+            { tech: 'Application', techDesc: 'Notepad calls print() — it has no idea what happens next',
+              analogy: 'You', analogyDesc: 'You seal a letter and hand it to the counter' },
+            { tech: 'OS Print Subsystem', techDesc: 'Accepts the job and passes it on, no questions asked',
+              analogy: 'Post Office Counter', analogyDesc: 'The counter accepts your letter, no questions asked' },
+            { tech: 'Printer Driver', techDesc: 'Formats the job for whichever printer is actually installed',
+              analogy: 'The Clerk', analogyDesc: 'The clerk decides how your letter will actually get there' },
+        ];
+
+        const deviceOutcomes = {
+            real: {
+                tech: 'Physical Printer', techDesc: 'Real hardware, receives raw print data over USB',
+                analogy: 'Courier on a Bike', analogyDesc: 'Rides the letter across town in person',
+                icon: '🖨️', outcome: 'Paper comes out of the tray — a real, physical printout.'
+            },
+            virtual: {
+                tech: 'Virtual PDF Printer (software)', techDesc: 'No physical printer exists — it just writes a file to disk',
+                analogy: 'Clerk Emails It Instead', analogyDesc: 'No courier available, so the clerk scans the letter and emails it',
+                icon: '📄', outcome: 'A PDF file appears in your Documents folder. No paper, no real printer — but Notepad never knew the difference.'
+            }
+        };
+
+        let stackMode = 'tech';
+        let deviceMode = 'real';
+        let stackAnimStep = -1;
+        let stackTimers = [];
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 6 GROUPS WITH UNIQUE QUESTION SETS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const groupsData = [{
+            name: 'CPU',
+            emoji: '🔴',
+            topic: 'CPU & Processing',
+            quiz: [{
+                q: 'What is the primary job of the CPU?',
+                opts: ['Store data permanently', 'Execute instructions and process data', 'Connect to the internet',
+                    'Display graphics'
+                ],
+                correct: 1,
+                explain: 'The CPU is the "brain" — it executes instructions and processes all data.'
+            }, {
+                q: 'How does the CPU know when a device needs attention?',
+                opts: ['It constantly asks every device', 'It waits for an interrupt signal', 'It uses a timer',
+                    'It checks once per second'
+                ],
+                correct: 1,
+                explain: 'Interrupts allow the CPU to work on other tasks until a device signals it needs attention.'
+            }, {
+                q: 'What is the main advantage of interrupts over polling?',
+                opts: ['Interrupts are easier to code', 'Interrupts save CPU time by only acting when data arrives',
+                    'Interrupts use less memory', 'Interrupts are faster'
+                ],
+                correct: 1,
+                explain: 'Interrupts free the CPU to do other work instead of constantly checking devices.'
+            }]
+        }, {
+            name: 'Memory',
+            emoji: '🟢',
+            topic: 'RAM & Memory',
+            quiz: [{
+                q: 'What is the role of RAM in a computer system?',
+                opts: ['Permanently store files', 'Hold data and instructions the CPU is currently using',
+                    'Connect to the internet', 'Display graphics'
+                ],
+                correct: 1,
+                explain: 'RAM is the CPU\'s short-term memory — it holds active data for fast access.'
+            }, {
+                q: 'What is a RAM disk?',
+                opts: ['A physical hard drive', 'A portion of RAM treated as a hard drive', 'A type of USB drive',
+                    'A network storage device'
+                ],
+                correct: 1,
+                explain: 'A RAM disk uses RAM as if it were a hard drive — extremely fast but data is lost when power is off.'
+            }, {
+                q: 'Why is data lost from RAM when the computer powers off?',
+                opts: ['RAM uses magnetism', 'RAM is volatile memory', 'RAM is too slow', 'RAM is a storage device'],
+                correct: 1,
+                explain: 'RAM is volatile — it requires power to hold data.'
+            }]
+        }, {
+            name: 'Hard Disk',
+            emoji: '🔵',
+            topic: 'DMA & Storage',
+            quiz: [{
+                q: 'What is DMA and what does it solve?',
+                opts: ['It makes the CPU faster', 'It allows devices to transfer data directly to/from RAM without CPU involvement',
+                    'It stores data permanently', 'It encrypts data'
+                ],
+                correct: 1,
+                explain: 'DMA frees the CPU from moving every byte personally — the DMA controller handles data transfers.'
+            }, {
+                q: 'Without DMA, what must the CPU do?',
+                opts: ['Nothing', 'Personally move every byte between devices and RAM', 'Store data on the hard drive',
+                    'Run the operating system'
+                ],
+                correct: 1,
+                explain: 'Without DMA, the CPU acts as a "delivery boy" moving every byte, wasting its time.'
+            }, {
+                q: 'Why does DMA matter for performance?',
+                opts: ['It makes the CPU run faster', 'It frees the CPU to do other work while data is being transferred',
+                    'It reduces memory usage', 'It speeds up the hard drive'
+                ],
+                correct: 1,
+                explain: 'DMA allows the CPU to work on other tasks while data moves in the background.'
+            }]
+        }, {
+            name: 'Keyboard',
+            emoji: '🟡',
+            topic: 'Device Drivers',
+            quiz: [{
+                q: 'Why does every hardware device need a driver?',
+                opts: ['To make it look better', 'To translate between the device\'s language and the OS\'s language',
+                    'To store data', 'To connect to Wi-Fi'
+                ],
+                correct: 1,
+                explain: 'A driver acts as a translator — the device speaks one language, the OS speaks another.'
+            }, {
+                q: 'Who writes device drivers?',
+                opts: ['Microsoft', 'The device manufacturer', 'The user', 'The government'],
+                correct: 1,
+                explain: 'Device manufacturers write drivers to ensure their hardware works with the OS.'
+            }, {
+                q: 'What is the Windows Driver Model (WDM)?',
+                opts: ['A type of hard drive', 'A contract that drivers follow so Windows can talk to any device',
+                    'A programming language', 'A networking protocol'
+                ],
+                correct: 1,
+                explain: 'WDM is a standard interface — any driver that follows it can work with Windows.'
+            }]
+        }, {
+            name: 'Application',
+            emoji: '🟣',
+            topic: 'Virtual Devices & Abstraction',
+            quiz: [{
+                q: 'What is a virtual device abstraction?',
+                opts: ['A physical device', 'Software that pretends to be hardware', 'A type of RAM',
+                    'A network card'
+                ],
+                correct: 1,
+                explain: 'Virtual devices are software that the OS treats as if they were real hardware.'
+            }, {
+                q: 'Give a real-world example of a virtual device.',
+                opts: ['A graphics card', 'Print to PDF (virtual printer)', 'A hard drive', 'A mouse'],
+                correct: 1,
+                explain: 'Print to PDF is a virtual printer — the OS thinks it\'s printing to real hardware, but it saves a PDF file instead.'
+            }, {
+                q: 'What is the "power of abstraction"?',
+                opts: ['Making things complicated', 'Hiding complexity so the OS treats virtual and physical devices the same',
+                    'Making devices faster', 'Storing more data'
+                ],
+                correct: 1,
+                explain: 'Abstraction hides details — the OS doesn\'t need to know if a device is real or virtual.'
+            }]
+        }, {
+            name: 'Operating System',
+            emoji: '🟠',
+            topic: 'Polling vs Interrupts',
+            quiz: [{
+                q: 'Distinguish polling from interrupt-driven I/O.',
+                opts: ['Polling is faster', 'Polling = CPU asks repeatedly; Interrupts = device signals when ready',
+                    'They are the same', 'Interrupts use more CPU'
+                ],
+                correct: 1,
+                explain: 'Polling wastes CPU time checking; interrupts let the CPU work until the device signals.'
+            }, {
+                q: 'What is the trade-off between polling and interrupts?',
+                opts: ['Polling uses less power', 'Interrupts have overhead (setup time), but save CPU time; Polling has no overhead but wastes time on idle checks',
+                    'Polling is better for slow devices', 'Interrupts are always better'
+                ],
+                correct: 1,
+                explain: 'Interrupts have setup overhead but save CPU time; polling wastes time checking but has no overhead.'
+            }, {
+                q: 'Explain why Android apps cannot simply run on iOS.',
+                opts: ['They use different hardware', 'They rely on different OS APIs and drivers — no abstraction layer exists between them',
+                    'iOS is faster', 'Android uses more memory'
+                ],
+                correct: 1,
+                explain: 'Android and iOS have different system calls, APIs, and driver models — there\'s no universal abstraction that lets apps run on both.'
+            }]
+        }];
+
+        // Build lookup maps
+        const groupEmojis = {};
+        const groupTopics = {};
+        const groupQuizData = {};
+        groupsData.forEach(g => {
+            groupEmojis[g.name] = g.emoji;
+            groupTopics[g.name] = g.topic;
+            groupQuizData[g.name] = g.quiz;
+        });
+        const groupNames = groupsData.map(g => g.name);
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        let currentScreen = 1;
+        let animStep = -1;
+        let autoInterval = null;
+        let analogyMode = 'tech';
+
+        // Group quiz state
+        let currentGroup = 'CPU';
+        let groupScores = {};
+        let groupAttempts = {};
+        let groupPassed = {};
+        let groupQuizState = {};
+
+        // Initialize group data
+        groupNames.forEach(g => {
+            groupScores[g] = 0;
+            groupAttempts[g] = 0;
+            groupPassed[g] = false;
+            groupQuizState[g] = {};
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // RENDER FUNCTIONS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function renderDiagram(containerId, stepIndex, mode) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const m = mode || 'tech';
+            const highlight = stepIndex !== undefined ? stepIndex : -1;
+
+            let html = '';
+            steps.forEach((s, i) => {
+                const isActive = (i === highlight);
+                const isDone = (highlight >= 0 && i < highlight);
+                let cls = 'step-box';
+                if (isActive) cls += ' active';
+                if (isDone) cls += ' done';
+
+                const label = (m === 'analogy') ? s.analogy : s.tech;
+                const name = (m === 'analogy') ? s.analogy : s.label;
+
+                html += `<div class="${cls}" data-id="${s.id}">
+                            <div class="label ${m === 'analogy' ? 'analogy-label' : 'tech-label'}">${m === 'analogy' ? '🏠 Analogy' : '🔧 Tech'}</div>
+                            <div class="name">${name}</div>
+                            <div class="tech">${label}</div>
+                         </div>`;
+                if (i < steps.length - 1) {
+                    html += `<span class="arrow">→</span>`;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        function renderAnalogy() {
+            renderDiagram('analogyDiagram', -1, analogyMode);
+            document.getElementById('analogyHint').textContent =
+                analogyMode === 'tech' ?
+                '🔧 Showing technical labels. Click "House Analogy" to switch.' :
+                '🏠 Showing house analogy labels. Click "Technical" to switch.';
+            const wrap = document.getElementById('analogyDiagramWrap');
+            wrap.className = 'diagram-wrap' + (analogyMode === 'analogy' ? ' show-analogy' : '');
+        }
+
+        function renderConcepts() {
+            const grid = document.getElementById('conceptGrid');
+            let html = '';
+            concepts.forEach((c, i) => {
+                html += `<div class="concept-card" data-index="${i}">
+                            <div class="concept-name">${c.name}</div>
+                            <div class="concept-desc">${c.desc}</div>
+                         </div>`;
+            });
+            grid.innerHTML = html;
+
+            grid.querySelectorAll('.concept-card').forEach((card) => {
+                card.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    this.classList.toggle('highlight');
+                });
+            });
+        }
+
+        function renderStack() {
+            const container = document.getElementById('stackDiagram');
+            if (!container) return;
+
+            let html = '';
+            stackLayers.forEach((layer, i) => {
+                const isActive = i === stackAnimStep;
+                const isDone = stackAnimStep >= 0 && i < stackAnimStep;
+                let cls = 'stack-layer';
+                if (isActive) cls += ' active';
+                if (isDone) cls += ' done';
+
+                const name = stackMode === 'analogy' ? layer.analogy : layer.tech;
+                const desc = stackMode === 'analogy' ? layer.analogyDesc : layer.techDesc;
+
+                html += `<div class="${cls}">
+                            <div class="layer-tag">${stackMode === 'analogy' ? '🏤 Post Office' : '🔧 Technical'}</div>
+                            <div class="layer-name">${name}</div>
+                            <div class="layer-desc">${desc}</div>
+                         </div>
+                         <div class="stack-down-arrow">↓</div>`;
+            });
+
+            const swapIndex = stackLayers.length;
+            const isSwapActive = stackAnimStep === swapIndex;
+            const isSwapDone = stackAnimStep > swapIndex;
+            const outcome = deviceOutcomes[deviceMode];
+            const swapName = stackMode === 'analogy' ? outcome.analogy : outcome.tech;
+            const swapDesc = stackMode === 'analogy' ? outcome.analogyDesc : outcome.techDesc;
+
+            let swapCls = 'stack-layer swap-layer';
+            if (isSwapActive) swapCls += ' active';
+            if (isSwapDone) swapCls += ' done';
+
+            html += `<div class="${swapCls}">
+                        <div class="layer-tag">⚡ this layer swaps</div>
+                        <div class="layer-name">${outcome.icon} ${swapName}</div>
+                        <div class="layer-desc">${swapDesc}</div>
+                     </div>`;
+
+            container.innerHTML = html;
+        }
+
+        function renderStackOutcome(show) {
+            const el = document.getElementById('stackOutcome');
+            if (!el) return;
+            const outcome = deviceOutcomes[deviceMode];
+            if (show) {
+                el.innerHTML = `<div class="outcome-icon">${outcome.icon}</div>
+                                 <div style="margin-top:8px;font-weight:600;">${outcome.outcome}</div>`;
+                el.classList.add('visible');
+            } else {
+                el.classList.remove('visible');
+                el.innerHTML = '';
+            }
+        }
+
+        function resetStackAnim(rerender) {
+            stackTimers.forEach(t => clearTimeout(t));
+            stackTimers = [];
+            stackAnimStep = -1;
+            renderStackOutcome(false);
+            const punchline = document.getElementById('stackPunchline');
+            if (punchline) punchline.style.display = 'none';
+            if (rerender !== false) renderStack();
+        }
+
+        function playStack() {
+            resetStackAnim(false);
+            const totalSteps = stackLayers.length + 1; // + the swap layer
+            for (let i = 0; i < totalSteps; i++) {
+                stackTimers.push(setTimeout(() => {
+                    stackAnimStep = i;
+                    renderStack();
+                    if (i === totalSteps - 1) {
+                        stackTimers.push(setTimeout(() => {
+                            renderStackOutcome(true);
+                            const punchline = document.getElementById('stackPunchline');
+                            if (punchline) punchline.style.display = 'block';
+                        }, 500));
+                    }
+                }, i * 700));
+            }
+        }
+
+        function renderGroupQuiz() {
+            const display = document.getElementById('currentGroupDisplay');
+            const emoji = groupEmojis[currentGroup] || '🔴';
+            display.textContent = `${emoji} ${currentGroup}`;
+
+            document.getElementById('groupTopicDisplay').textContent = `📖 Topic: ${groupTopics[currentGroup] || 'General'}`;
+
+            document.getElementById('scoreDisplay').textContent = groupScores[currentGroup] || 0;
+            document.getElementById('attemptDisplay').textContent = groupAttempts[currentGroup] || 0;
+
+            const passFail = document.getElementById('passFailDisplay');
+            if (groupPassed[currentGroup]) {
+                passFail.textContent = '✅ PASSED! 🎉';
+                passFail.style.color = '#22c55e';
+            } else if (groupAttempts[currentGroup] >= 3) {
+                passFail.textContent = '❌ 3 Attempts Used — Group Failed';
+                passFail.style.color = '#ef4444';
+            } else {
+                passFail.textContent = `⏳ Attempt ${(groupAttempts[currentGroup] || 0) + 1} of 3`;
+                passFail.style.color = '#eab308';
+            }
+
+            // Get this group's quiz data
+            const quizQuestions = groupQuizData[currentGroup] || [];
+            const state = groupQuizState[currentGroup] || {};
+
+            // Check if group passed or used 3 attempts
+            const locked = groupPassed[currentGroup] || groupAttempts[currentGroup] >= 3;
+
+            const container = document.getElementById('quizContainer');
+
+            if (quizQuestions.length === 0) {
+                container.innerHTML =
+                    '<p style="color:#94a3b8;text-align:center;padding:20px;">No questions available for this group.</p>';
+                return;
+            }
+
+            let html = '';
+            quizQuestions.forEach((q, qi) => {
+                const qState = state[qi] || {};
+                const answered = qState.selected !== undefined;
+                html += `<div class="quiz-item" data-q="${qi}">
+                            <div class="q">${qi+1}. ${q.q}</div>
+                            <div class="quiz-options">`;
+                q.opts.forEach((opt, oi) => {
+                    let cls = '';
+                    if (answered) {
+                        if (oi === q.correct) cls = 'correct';
+                        if (qState.selected === oi && oi !== q.correct) cls = 'wrong';
+                    }
+                    const disabled = locked || answered ? 'disabled' : '';
+                    html +=
+                        `<button class="${cls}" data-qi="${qi}" data-oi="${oi}" ${disabled}>${String.fromCharCode(65+oi)}. ${opt}</button>`;
+                });
+                html += `</div>
+                            <div class="quiz-feedback ${answered ? 'show' : ''}">
+                                ${answered ? (qState.selected === q.correct ? '✅ Correct! ' + q.explain : '❌ ' + q.explain) : ''}
+                            </div>
+                         </div>`;
+            });
+            container.innerHTML = html;
+
+            // Attach events
+            if (!locked) {
+                container.querySelectorAll('.quiz-options button:not([disabled])').forEach((btn) => {
+                    btn.addEventListener('click', function() {
+                        const qi = parseInt(this.dataset.qi);
+                        const oi = parseInt(this.dataset.oi);
+                        const q = quizQuestions[qi];
+
+                        // Check if already answered
+                        const state = groupQuizState[currentGroup] || {};
+                        if (state[qi] && state[qi].selected !== undefined) return;
+
+                        // Record answer
+                        if (!groupQuizState[currentGroup]) groupQuizState[currentGroup] = {};
+                        groupQuizState[currentGroup][qi] = { selected: oi };
+
+                        // Update score
+                        if (oi === q.correct) {
+                            groupScores[currentGroup] = (groupScores[currentGroup] || 0) + 1;
+                        }
+
+                        // Check if all 3 answered
+                        const allAnswered = quizQuestions.every((_, i) => {
+                            return groupQuizState[currentGroup] && groupQuizState[currentGroup][i] &&
+                                groupQuizState[currentGroup][i].selected !== undefined;
+                        });
+
+                        if (allAnswered) {
+                            groupAttempts[currentGroup] = (groupAttempts[currentGroup] || 0) + 1;
+                            if (groupScores[currentGroup] >= 2) {
+                                groupPassed[currentGroup] = true;
+                            }
+                        }
+
+                        renderGroupQuiz();
+                        renderGroupHistory();
+                    });
+                });
+            }
+
+            renderGroupHistory();
+        }
+
+        function renderGroupHistory() {
+            const container = document.getElementById('groupHistory');
+            let html = '<span style="color:#94a3b8;font-size:13px;width:100%;text-align:center;">📊 Group Results</span>';
+            groupNames.forEach(g => {
+                let cls = 'badge';
+                let status = '⏳ Pending';
+                if (g === currentGroup) cls += ' current';
+                if (groupPassed[g]) {
+                    cls += ' passed';
+                    status = '✅ Passed 🎉';
+                } else if (groupAttempts[g] >= 3) {
+                    cls += ' failed';
+                    status = '❌ Failed';
+                } else if (groupAttempts[g] > 0) {
+                    status = `⏳ ${groupScores[g]}/3 (${groupAttempts[g]} att)`;
+                }
+                html += `<span class="${cls}">${groupEmojis[g] || '🔴'} ${g}: ${status}</span>`;
+            });
+            container.innerHTML = html;
+        }
+
+        const screenSubtitles = {
+            1: '🖱️ Hook: How Your Mouse Moves',
+            2: '🖱️ How Your Mouse Moves — The Journey',
+            3: '🖱️ How Your Mouse Moves — Analogy Mode',
+            4: '🧠 OS Concepts Map',
+            5: '📡 USB Dongle vs Bluetooth',
+            6: '🎭 Virtual Device Abstraction',
+            7: '🎲 Exit Ticket: Group Quiz'
+        };
+
+        function renderAll() {
+            renderDiagram('diagram', animStep, 'tech');
+            document.getElementById('stepCounter').textContent = Math.max(0, animStep + 1);
+            document.getElementById('totalSteps').textContent = steps.length;
+            renderAnalogy();
+            renderConcepts();
+            renderGroupQuiz();
+            renderStack();
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentScreen - 1);
+            });
+            document.getElementById('screenNum').textContent = currentScreen;
+            const subtitleEl = document.getElementById('screenSubtitle');
+            if (subtitleEl) subtitleEl.textContent = screenSubtitles[currentScreen] || '';
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SCREEN NAVIGATION
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function goToScreen(n) {
+            if (n < 1 || n > 7) return;
+            currentScreen = n;
+            document.querySelectorAll('.screen').forEach((el, i) => {
+                el.classList.toggle('active', i === n - 1);
+            });
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === n - 1);
+            });
+            document.getElementById('screenNum').textContent = n;
+            if (autoInterval) { clearInterval(autoInterval);
+                autoInterval = null; }
+            renderAll();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // EVENT BINDING
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ─── Screen 1: Hook ───
+            document.getElementById('revealHook').addEventListener('click', function() {
+                document.getElementById('hookReveal').classList.toggle('visible');
+                this.textContent = this.textContent === 'Reveal the answer' ? 'Hide the answer' : 'Reveal the answer';
+            });
+
+            // ─── Screen 2: Animation ───
+            function stepAnim() {
+                if (animStep < steps.length - 1) {
+                    animStep++;
+                } else {
+                    animStep = -1;
+                }
+                renderDiagram('diagram', animStep, 'tech');
+                document.getElementById('stepCounter').textContent = Math.max(0, animStep + 1);
+                if (animStep === steps.length - 1) {
+                    document.getElementById('nextAnim').textContent = '↺ Restart';
+                } else {
+                    document.getElementById('nextAnim').textContent = 'Next Step →';
+                }
+            }
+
+            document.getElementById('nextAnim').addEventListener('click', function() {
+                if (animStep === steps.length - 1) {
+                    animStep = -1;
+                    renderDiagram('diagram', animStep, 'tech');
+                    document.getElementById('stepCounter').textContent = '0';
+                    this.textContent = 'Next Step →';
+                    return;
+                }
+                stepAnim();
+            });
+
+            document.getElementById('resetAnim').addEventListener('click', function() {
+                animStep = -1;
+                renderDiagram('diagram', animStep, 'tech');
+                document.getElementById('stepCounter').textContent = '0';
+                document.getElementById('nextAnim').textContent = 'Next Step →';
+                if (autoInterval) { clearInterval(autoInterval);
+                    autoInterval = null; }
+            });
+
+            document.getElementById('autoAnim').addEventListener('click', function() {
+                if (autoInterval) {
+                    clearInterval(autoInterval);
+                    autoInterval = null;
+                    this.textContent = '▶ Auto-play';
+                    return;
+                }
+                this.textContent = '⏹ Stop';
+                autoInterval = setInterval(() => {
+                    if (animStep === steps.length - 1) {
+                        animStep = -1;
+                        renderDiagram('diagram', animStep, 'tech');
+                        document.getElementById('stepCounter').textContent = '0';
+                        document.getElementById('nextAnim').textContent = 'Next Step →';
+                    }
+                    stepAnim();
+                }, 1200);
+            });
+
+            // ─── Screen 3: Analogy Toggle ───
+            document.querySelectorAll('.toggle-btn').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    analogyMode = this.dataset.mode;
+                    renderAnalogy();
+                });
+            });
+
+            // ─── Screen 6: Group Quiz ───
+            document.getElementById('pickGroupBtn').addEventListener('click', function() {
+                // Pick a random group that hasn't passed yet
+                const available = groupNames.filter(g => !groupPassed[g]);
+                if (available.length === 0) {
+                    alert('🎉 All groups have passed! Click "Reset All Groups" to start over.');
+                    return;
+                }
+                const randomIndex = Math.floor(Math.random() * available.length);
+                currentGroup = available[randomIndex];
+                renderGroupQuiz();
+                renderGroupHistory();
+            });
+
+            document.getElementById('resetGroupQuizBtn').addEventListener('click', function() {
+                // Reset only current group's quiz
+                groupScores[currentGroup] = 0;
+                groupAttempts[currentGroup] = 0;
+                groupPassed[currentGroup] = false;
+                groupQuizState[currentGroup] = {};
+                renderGroupQuiz();
+                renderGroupHistory();
+            });
+
+            document.getElementById('resetAllGroupsBtn').addEventListener('click', function() {
+                if (confirm('⚠️ Reset all groups? This will clear all scores and progress.')) {
+                    groupNames.forEach(g => {
+                        groupScores[g] = 0;
+                        groupAttempts[g] = 0;
+                        groupPassed[g] = false;
+                        groupQuizState[g] = {};
+                    });
+                    currentGroup = groupNames[0];
+                    renderGroupQuiz();
+                    renderGroupHistory();
+                }
+            });
+
+            // ─── Screen 7: Virtual Device Abstraction ───
+            document.querySelectorAll('[data-stackmode]').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-stackmode]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    stackMode = this.dataset.stackmode;
+                    renderStack();
+                });
+            });
+
+            document.querySelectorAll('[data-device]').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-device]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    deviceMode = this.dataset.device;
+                    resetStackAnim();
+                });
+            });
+
+            document.getElementById('playStack').addEventListener('click', playStack);
+            document.getElementById('resetStack').addEventListener('click', function() {
+                resetStackAnim();
+            });
+
+            // ─── Nav: Prev / Next ───
+            document.getElementById('prevScreen').addEventListener('click', function() {
+                if (currentScreen > 1) goToScreen(currentScreen - 1);
+            });
+
+            document.getElementById('nextScreen').addEventListener('click', function() {
+                if (currentScreen < 7) goToScreen(currentScreen + 1);
+            });
+
+            // ─── Dot navigation ───
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.addEventListener('click', function() {
+                    goToScreen(i + 1);
+                });
+            });
+
+            // ─── Initial render ───
+            renderAll();
+        });
+    </script>
+
+</body>
+</html>
